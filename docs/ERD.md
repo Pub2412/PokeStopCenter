@@ -22,7 +22,7 @@ The database schema consists of the following tables (2nd normal form):
 | transactions | transaction_items | 1 to many | a transaction includes items |
 | products | transaction_items | 1 to many | a product is sold in transaction items |
 
-,,,,
+```mermaid
 erDiagram
     users {
         int id PK
@@ -89,3 +89,4 @@ erDiagram
     products ||--o{ reviews : "receives"
     transactions ||--o{ transaction_items : "includes"
     products ||--o{ transaction_items : "sold in"
+    ```
