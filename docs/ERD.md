@@ -22,6 +22,9 @@ The database schema consists of the following tables (2nd normal form):
 | transactions | transaction_items | 1 to many | a transaction includes items |
 | products | transaction_items | 1 to many | a product is sold in transaction items |
 
+
+**ERD Diagram:**
+
 ```mermaid
 erDiagram
     users {
