@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^php artisan route:list$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
