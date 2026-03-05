@@ -88,6 +88,8 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
    npm install && npm run dev
    php artisan migrate
    ```
+   choose 'blade'
+   choose PHPUnit (1)
    Breeze places its own routes file at `routes/auth.php` and you don’t
    need to call `Auth::routes()` manually.
 
