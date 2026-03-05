@@ -89,4 +89,4 @@ erDiagram
     products ||--o{ reviews : "receives"
     transactions ||--o{ transaction_items : "includes"
     products ||--o{ transaction_items : "sold in"
-    ```
+
