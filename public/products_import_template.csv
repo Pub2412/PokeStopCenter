@@ -1,0 +1,13 @@
+name,category,price,stock,brand,type,description,is_active,image_path
+Pokémon Trading Card Booster Pack,Cards,450,50,The Pokémon Company,Booster Pack,Sealed booster pack with 10 random cards,1,"booster_pack_front.jpg|booster_pack_back.jpg"
+Pikachu Plush Toy,Toys,350,30,Official Pokémon,Plush,Soft cuddly Pikachu collectible plush toy,1,"pikachu_plush_main.jpg|pikachu_plush_side.jpg"
+Charizard Figurine,Collectibles,550,20,Bandai,Figure,Detailed Charizard action figure,1,charizard_figure.jpg
+Pokédex Electronic Device,Electronics,1200,15,Hasbro,Electronic Device,Interactive Pokédex with real sounds,1,pokedex_device.jpg
+Eevee Evolution Set,Collectibles,800,25,Official Pokémon,Figure Set,Complete set of all Eevee evolutions,1,eevee_set.jpg
+Pokémon Enamel Pins Set,Accessories,250,40,Generic,Pins,Set of 5 enamel pins featuring popular Pokémon,1,enamel_pins.jpg
+Pikachu Drawstring Bag,Accessories,280,35,Official Pokémon,Bag,Yellow drawstring backpack with Pikachu face,1,pikachu_bag.jpg
+Ultra Ball Replica,Collectibles,200,45,Official Pokémon,Replica,Life-size Ultra Ball die-cast replica,1,ultraball_replica.jpg
+Jigglypuff Keychain,Accessories,120,60,Official Pokémon,Keychain,Small rubber keychain with Jigglypuff design,1,jigglypuff_key.jpg
+Pokémon Lunch Box,Home & Kitchen,400,22,Official Pokémon,Container,Stainless steel lunch box with Pokémon artwork,1,lunch_box.jpg
+Mewtwo Pokemon Card,Cards,3500,5,The Pokémon Company,Card,Rare holographic Mewtwo from Base Set,1,mewtwo_card.jpg
+Pokémon Water Bottle,Home & Kitchen,350,38,Official Pokémon,Bottle,500ml insulated water bottle with Pokémon design,1,water_bottle.jpg

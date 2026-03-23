@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokéStop Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Russo+One&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      /* Parallax Background Setup */
+      background-color: #555; /* Fallback color */
+      background-image: url('loopingbg.png'); 
+      background-repeat: repeat;
+      background-position: center 0px;
+      min-height: 100vh;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { font-family: 'Poppins', sans-serif; cursor: pointer; border: none; outline: none; }
+
+    .safe-area {
+      width: 100%;
+      max-width: 1120px; 
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+
+    /* ===== STICKY HEADER & NAV WITH GLOW ===== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      /* Glow effect fading to transparent */
+      background: linear-gradient(to bottom, #F6CF57 60%, rgba(246, 207, 87, 0.8) 80%, rgba(246, 207, 87, 0) 100%);
+      padding-bottom: 30px; /* Extra padding for the fade out */
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      padding-bottom: 14px;
+    }
+
+    .header-left { flex: 1; display: flex; justify-content: flex-start; }
+    .header-center { flex: 0 1 auto; width: 100%; max-width: 520px; }
+    .header-right { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; }
+
+    .logo a { display: inline-block; }
+    .logo img { height: 50px; width: auto; display: block; }
+    
+    .logo-fallback { display: none; align-items: center; gap: 8px; }
+    .logo img[data-failed="true"] { display: none; }
+    .logo img[data-failed="true"] ~ .logo-fallback { display: flex; }
+    .logo-fallback-icon { display: flex; flex-direction: column; gap: 3px; }
+    .logo-fallback-icon span { display: block; height: 5px; border-radius: 2px; }
+    .logo-fallback-icon span:nth-child(1) { width: 28px; background: #cc0000; }
+    .logo-fallback-icon span:nth-child(2) { width: 24px; background: #ff6600; }
+    .logo-fallback-icon span:nth-child(3) { width: 20px; background: #ffcc00; }
+    .logo-fallback-text { display: flex; flex-direction: column; line-height: 1.05; }
+    .logo-fallback-text span { font-size: 22px; font-family: 'Russo One', sans-serif; color: #1a1a1a; }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 50px;
+      padding: 6px 6px 6px 24px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      width: 100%;
+    }
+
+    .search-bar input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      background: transparent;
+    }
+    
+    .search-btn {
+      width: 42px; height: 42px; border-radius: 50%; background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .search-btn:hover { background: #e0e0e0; }
+    .search-btn svg { width: 18px; height: 18px; fill: #666; }
+
+    .cart-btn {
+      background: linear-gradient(180deg, #fdf6d8 0%, #e8d88c 100%);
+      border-radius: 50px;
+      padding: 12px 32px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+    .cart-btn:hover { transform: scale(1.03); }
+
+    .profile-btn {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #eee;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); transition: transform 0.2s;
+    }
+    .profile-btn:hover { transform: scale(1.05); }
+    .profile-btn svg { width: 26px; height: 26px; fill: #aaa; }
+
+    .secondary-nav {
+      background: linear-gradient(180deg, #fdf6d8 0%, #e8d88c 100%);
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 10px 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+    .secondary-nav a { font-size: 15px; font-weight: 600; color: #1a1a1a; padding: 4px 16px; border-radius: 30px; transition: background 0.2s; }
+    .secondary-nav a:hover { background: rgba(0, 0, 0, 0.07); }
+
+    /* ===== HERO CAROUSEL ===== */
+    .hero-carousel {
+      padding: 10px 0 20px;
+      position: relative;
+      width: 100vw; 
+      overflow: hidden;
+    }
+
+    .carousel-track {
+      display: flex;
+      align-items: center;
+    }
+
+    .carousel-slide {
+      width: 1024px; 
+      max-width: 90vw; 
+      height: 420px; 
+      flex-shrink: 0;
+      border-radius: 30px;
+      margin: 0 20px; 
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .carousel-slide .slide-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center; 
+      display: block;
+    }
+
+    /* ===== CAROUSEL DOTS ===== */
+    .carousel-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .carousel-dot {
+      height: 12px;
+      width: 12px;
+      border-radius: 6px;
+      background: rgba(60, 60, 60, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .carousel-dot.active {
+      width: 36px;
+      background: rgba(60, 60, 60, 0.8);
+    }
+
+    /* ===== PRODUCT GRID ===== */
+    .products-section { padding: 30px 0 80px; }
+    .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    
+    .product-card { background: #fff; border-radius: 20px; box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); padding: 14px; display: flex; flex-direction: column; }
+    .product-card-image { width: 100%; aspect-ratio: 4 / 3; background: #00b153; border-radius: 14px; overflow: hidden; }
+    .product-card-info { padding: 12px 6px 4px; flex: 1; }
+    .product-card-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .product-card-price { font-size: 14px; font-weight: 500; color: #444; margin-bottom: 6px; }
+    .product-card-rating { display: flex; align-items: center; gap: 6px; }
+    .stars { display: flex; gap: 2px; }
+    .star { width: 16px; height: 16px; fill: #f0c020; }
+    .star.empty { fill: #ddd; }
+    .rating-count { font-size: 13px; color: #777; font-weight: 500; }
+    
+    .product-card-actions { display: flex; align-items: center; gap: 10px; padding: 10px 6px 6px; margin-top: auto; }
+    .bookmark-btn { width: 44px; height: 44px; border-radius: 50%; background: #fdf6d8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); transition: background 0.2s; }
+    .bookmark-btn:hover { background: #f6eaac; }
+    .bookmark-btn svg { width: 20px; height: 20px; fill: #1a1a1a; }
+    .add-to-cart-btn { flex: 1; background: linear-gradient(180deg, #fdf6d8 0%, #f1dc6b 100%); border-radius: 50px; padding: 10px 20px; font-size: 14px; font-weight: 600; color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .add-to-cart-btn:hover { transform: scale(1.02); }
+
+    /* ===== DARK FOOTER ===== */
+    .footer { 
+      background-color: #222222; 
+      color: #ffffff; 
+      padding: 50px 0 30px; 
+    }
+    .footer-tagline { 
+      text-align: center; 
+      font-size: 18px; 
+      font-weight: 700; 
+      font-style: italic; 
+      margin-bottom: 50px; 
+    }
+    .footer-bottom { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+    }
+    .footer-copyright { font-size: 14px; font-weight: 400; color: #ccc; }
+    .footer-back-to-top { font-size: 14px; font-weight: 600; color: #fff; transition: opacity 0.2s; }
+    .footer-back-to-top:hover { opacity: 0.7; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+      .header-top { flex-wrap: wrap; gap: 15px; }
+      .header-center { order: 3; max-width: 100%; } 
+    }
+    @media (max-width: 600px) {
+      .product-grid { grid-template-columns: 1fr; }
+      .secondary-nav { flex-wrap: wrap; gap: 6px; }
+      .carousel-slide { height: 300px; } 
+      .footer-bottom { flex-direction: column; gap: 15px; text-align: center; }
+    }
+  </style>
+</head>
+<body id="top">
+
+  <header class="header">
+    <div class="safe-area header-top">
+      <div class="header-left">
+        <div class="logo">
+          <a href="#">
+            <img src="headerlogo.png" alt="PokéStop Center" onerror="this.dataset.failed='true';">
+            <div class="logo-fallback">
+              <div class="logo-fallback-icon"><span></span><span></span><span></span></div>
+              <div class="logo-fallback-text"><span>PokéStop</span></div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="search-bar">
+          <input type="text" placeholder="Search Items...">
+          <button class="search-btn" aria-label="Search">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="cart-btn">Cart</button>
+        <a href="#" class="profile-btn" aria-label="User profile">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </a>
+      </div>
+    </div>
+    
+    <div class="safe-area header-nav-wrapper">
+      <nav class="secondary-nav">
+        <a href="#">Promos</a>
+        <a href="#">All Categories</a>
+        <a href="#">Cards</a>
+        <a href="#">Plushies</a>
+        <a href="#">Figures</a>
+        <a href="#">Accessories</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-carousel">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="carousel-slide clone">
+          <img class="slide-img" src="banner2.png" style="background:#7232a8;" alt="Banner 2 Clone">
+        </div>
+        <div class="carousel-slide">
+          <img class="slide-img" src="banner1.png" style="background:#00b153;" alt="Banner 1">
+        </div>
+        <div class="carousel-slide">
+          <img class="slide-img" src="banner2.png" style="background:#7232a8;" alt="Banner 2">
+        </div>
+        <div class="carousel-slide clone">
+          <img class="slide-img" src="banner1.png" style="background:#00b153;" alt="Banner 1 Clone">
+        </div>
+      </div>
+      
+      <div class="carousel-dots" id="carouselDots">
+        <span class="carousel-dot active" data-index="0"></span>
+        <span class="carousel-dot" data-index="1"></span>
+      </div>
+    </section>
+
+    <section class="products-section safe-area">
+      <div class="product-grid">
+        
+        <article class="product-card">
+          <div class="product-card-image"></div>
+          <div class="product-card-info">
+            <div class="product-card-name">Placeholder Name</div>
+            <div class="product-card-price">PHP 9999.00</div>
+            <div class="product-card-rating">
+              <div class="stars">
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star empty" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star empty" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+              <span class="rating-count">(25)</span>
+            </div>
+          </div>
+          <div class="product-card-actions">
+            <button class="bookmark-btn"><svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/></svg></button>
+            <button class="add-to-cart-btn">Add to Cart</button>
+          </div>
+        </article>
+        <article class="product-card">
+          <div class="product-card-image"></div>
+          <div class="product-card-info">
+            <div class="product-card-name">Placeholder Name</div>
+            <div class="product-card-price">PHP 9999.00</div>
+            <div class="product-card-rating">
+              <div class="stars">
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star empty" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star empty" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+              <span class="rating-count">(25)</span>
+            </div>
+          </div>
+          <div class="product-card-actions">
+            <button class="bookmark-btn"><svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/></svg></button>
+            <button class="add-to-cart-btn">Add to Cart</button>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-card-image"></div>
+          <div class="product-card-info">
+            <div class="product-card-name">Placeholder Name</div>
+            <div class="product-card-price">PHP 9999.00</div>
+            <div class="product-card-rating">
+              <div class="stars">
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star empty" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="star empty" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+              <span class="rating-count">(25)</span>
+            </div>
+          </div>
+          <div class="product-card-actions">
+            <button class="bookmark-btn"><svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/></svg></button>
+            <button class="add-to-cart-btn">Add to Cart</button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="safe-area">
+      <p class="footer-tagline">Your One-Stop Shop for all things Pokémon!</p>
+      <div class="footer-bottom">
+        <span class="footer-copyright">Copyright 2026 Placeholder Enterprises</span>
+        <a href="#top" class="footer-back-to-top">Back to top</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Parallax Background Effect ---
+    window.addEventListener('scroll', () => {
+      // Moves the background on the Y axis at 30% the speed of normal scrolling
+      const scrollPosition = window.scrollY;
+      document.body.style.backgroundPositionY = -(scrollPosition * 0.3) + 'px';
+    });
+
+    // --- Seamless Carousel Script ---
+    (function () {
+      const track = document.getElementById('carouselTrack');
+      const slides = Array.from(document.querySelectorAll('.carousel-slide'));
+      const dots = document.querySelectorAll('.carousel-dot');
+      
+      let currentIndex = 1; // Starts on the real Banner 1
+      let isTransitioning = false;
+      let autoplayTimer;
+
+      function updateCarousel(animate = true) {
+        const viewportWidth = window.innerWidth;
+        const slideWidth = slides[0].offsetWidth;
+        const slideMargin = 20; 
+        const totalSlideWidth = slideWidth + (slideMargin * 2);
+
+        const shift = (viewportWidth / 2) - ((currentIndex * totalSlideWidth) + (totalSlideWidth / 2));
+
+        track.style.transition = animate ? 'transform 0.5s ease-in-out' : 'none';
+        track.style.transform = `translateX(${shift}px)`;
+
+        let dotIndex = currentIndex - 1;
+        if (dotIndex < 0) dotIndex = dots.length - 1;
+        if (dotIndex >= dots.length) dotIndex = 0;
+        
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === dotIndex);
+        });
+      }
+
+      function nextSlide() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        currentIndex++;
+        updateCarousel(true);
+      }
+
+      function startAutoplay() {
+        clearInterval(autoplayTimer);
+        autoplayTimer = setInterval(nextSlide, 5000); 
+      }
+
+      track.addEventListener('transitionend', () => {
+        isTransitioning = false;
+        if (currentIndex === slides.length - 1) {
+          currentIndex = 1;
+          updateCarousel(false);
+        }
+        if (currentIndex === 0) {
+          currentIndex = slides.length - 2;
+          updateCarousel(false);
+        }
+      });
+
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          if (isTransitioning || currentIndex === i + 1) return;
+          currentIndex = i + 1;
+          updateCarousel(true);
+          startAutoplay(); 
+        });
+      });
+
+      window.addEventListener('resize', () => updateCarousel(false));
+
+      setTimeout(() => {
+        updateCarousel(false);
+        startAutoplay();
+      }, 100);
+
+    })();
+  </script>
+
+</body>
+</html>
